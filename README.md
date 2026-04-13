@@ -1,1 +1,4 @@
 # Measles-Project
+
+This project explores the trends in reported measles cases across the world over a period of 14 years from 2012 to 2025. The exploration includes spatial visualization of the cases as well as an analysis of trends of reported cases over time. There will also be some micro-level comparisons of the distribution of measles between geographic regions and an assessment of the role played by economic factors on the reporting and confirmation of measles.
+The data for this project was sourced from a tidyTuesday data repository titled "Measles of the World" (https://github.com/rfordatascience/tidytuesday/blob/main/data/2025/2025-06-24/readme.md).
