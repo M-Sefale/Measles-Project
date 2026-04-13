@@ -1,0 +1,80 @@
+---
+title: "Final Project"
+author: "Lala"
+execute:
+  echo: true
+  warning: false
+format: 
+  html:
+    embed-resources: true
+--- 
+
+# Measles cases across the world
+
+## use closeread
+
+Data from https://github.com/rfordatascience/tidytuesday/blob/main/data/2025/2025-06-24/readme.md 
+```{r}
+#| warning: false
+library(tidyverse)
+library(readr)
+
+measles <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-06-24/cases_year.csv')
+
+View(measles)
+```
+
+
+## using incidence rates (cases per million people) rather than actual cases reported to avoid bigger-population countries having more cases just by virtue of being large??? 
+
+
+# talk to Dr. Vilakati in the public health department to get more insight on what lens to look at the data from
+
+How have global measles cases changed over time?
+
+- line plot to show trends in total measles cases over the years - interpretation - growing or falling?
+
+- were there years when there were global outbreaks?
+
+linear regression model to visualize the trends 
+
+
+
+# what is the spatial distribution of measles cases across the world?
+
+- choropleth map showing the spatial distribution of measles cases across the world
+
+# Which regions or countries consistently report the highest measles cases per (eg 10 000 of the population)?
+
+-- comparison of Boxplots of incidence rates by region  -- continent??
+
+# Are there seasonal patterns in measles outbreaks across different regions?
+
+- using monthly data  -- heatmap (month vs year)
+
+# Does the ratio of laboratory-confirmed cases to total cases reveal differences in healthcare capacity across countries?
+
+- comparing proportions of lab-confirmed vs clinical vs suspected cases 
+
+-- Stacked bar chart??
+
+# Data quality classification:  Which countries have strong lab-confirmation systems?
+
+high_quality = ifelse(lab_confirmed / total > 0.5, 1, 0)
+
+-- maybe join the data set with economic data to make a logistic regression model to predict data quality classification based on eg GDP, population size, region, ...
+
+-- but what would data quality add to the story telling??? 
+
+
+
+Future work:
+
+vaccination data
+policy analysis
+
+
+
+
+
+- 
