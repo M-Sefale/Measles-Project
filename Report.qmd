@@ -1,0 +1,53 @@
+---
+title: "Final Project"
+author: "Lala"
+execute:
+  echo: true
+  warning: false
+format: 
+  html:
+    embed-resources: true
+--- 
+
+# Creative title?
+
+# Abstract
+
+- giving a brief description of relevant data and any major findings.
+
+#Introduction
+
+- define measles, 
+
+- explain why you chose to do this exploration -- why measles? 
+
+- data description and source  -- including a description of the data to be merged with it
+
+- # from README
+
+This project explores the trends in reported measles cases across the world over a period of 14 years from 2012 to 2025. The exploration includes spatial visualization of the cases as well as an analysis of trends of reported cases over time. There will also be some micro-level comparisons of the distribution of measles between geographic regions and an assessment of the role played by economic factors on the reporting and confirmation of measles.
+
+The data for this project was sourced from a tidyTuesday data repository titled "Measles of the World". (https://github.com/rfordatascience/tidytuesday/blob/main/data/2025/2025-06-24/readme.md)
+
+- questions of interest to be explored in the project
+
+
+# Findings
+
+- the most interestign visualizations + their interpretations  --- broken up acccording to the questions of interest being answered
+
+- explain why results form these visualizations matter
+
+- state potential flaws to the visualizations and the interpretations
+
+
+
+# Conclusion
+
+- future work that could be done if there was more time
+
+- limitations to my visualizations
+
+* the interactive map (with leaflet) -- limitation is that it depends on the user hovering over it to see the exact incidence rates, which is a limitaTion of interactive visualisations --- ADD MORE TO THIS 
+
+
