@@ -1,5 +1,8 @@
-# Untitled
-
+---
+title: "Untitled"
+format: gfm
+editor: visual
+---
 
 ### Data
 
@@ -7,6 +10,7 @@
 
 ### some graph title
 
-``` r
+```{r}
 #include code that creates the code -- can hide the data prep 
 ```
+
