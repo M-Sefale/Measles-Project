@@ -1,0 +1,163 @@
+---
+title: "Measles cases across the world"
+author: "Lala Sefale"
+format: revealjs
+editor: visual
+---
+## What is measles?
+![](images/Measles-disease-symptoms.png)
+
+_Source: https://nursingexercise.com/measles-disease-symptoms-sign-diagnosis-treatment/_
+
+## Data
+
+```{r}
+#| echo: false
+#| warning: false
+library(tidyverse)
+library(readr)
+
+measles <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-06-24/cases_year.csv')
+measles_month <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-06-24/cases_month.csv')
+# the data for the year 2025 is incomplete for all countries. 2025 records in measles_month contain 4 to 6 months' data 
+# so, I will filter out the year 2025 to eliminate these incomplete records for the sake of consistency throughout the years
+measles <- measles |> select(1,2,3, 4, 5, 8, 9, 10, 11, 12) |> 
+  filter(year != 2025) 
+
+#preview of data 
+measles_preview <- measles |> group_by(region) |>
+  slice(1)
+
+library(knitr)
+measles_preview |> kable()
+```
+
+## Questions of interest
+
+1. How have measles cases changed globally over time (2012–2024)?
+
+2. Geographic distribution of measles cases across countries and regions
+
+3. Which countries and regions experienced the highest measles incidence rates in 2024?
+
+## Global trend in total cases of measles over the 13 years
+```{r}
+#| echo: false
+#Line plot for global trend in total cases of measles over the years
+
+annual_measles <- measles |> group_by(year) |>
+  summarise(`total measles cases in millions` = sum(measles_total)/100000)
+  
+ggplot(data = annual_measles, aes(x = year, y = `total measles cases in millions`)) +
+  geom_line(color = "darkblue") +
+  theme_minimal(base_size = 24) +
+  labs(x = "Years",
+       y = "Total global measles cases in millions")
+```
+
+## Geographic distribution of measles cases
+
+```{r}
+#| fig-width: 12
+#| fig-height: 7
+#| echo: false
+
+# we have seen the trends in global measles cases over the years, now to explore the distribution of measles cases across the world, we will look at a choropleth world map using the most recent year with complete records - 2024.
+
+## we will use incidence rate per million
+
+measles_2024 <- measles |> filter(year == 2024)
+
+library(maps)
+world <- map_data("world")
+
+measles_2024 <- measles_2024 |> mutate(country = if_else(country == "United States of America",
+                                   true = "USA",
+                                   false = country))
+
+measles_2024 <- measles_2024 |> mutate(country = if_else(country == "Russian Federation",
+                                   true = "Russia",
+                                   false = country))
+
+measles_2024 <- measles_2024 |> mutate(country = if_else(country == "Eswatini",
+                                   true = "Swaziland",
+                                   false = country))
+
+
+world_measles <- measles_2024 |> left_join(world, by = join_by(country == region))
+
+plot <- ggplot(data = world_measles, aes(x = long, y = lat, group = group, text = paste0("Country: ", country, "\n",
+    "Incidence: ", round(measles_incidence_rate_per_1000000_total_population, 2)))) +
+  geom_polygon(colour = "black", aes(fill = measles_incidence_rate_per_1000000_total_population)) +
+  coord_map(projection = "gilbert") +
+  theme_void() +
+  scale_fill_distiller(type = "seq", palette = "Blues", direction = 1) +
+  xlim(c(-180, 180)) + 
+  labs(fill = "Incidence rate per million")
+
+library(plotly)
+
+ggplotly(plot, tooltip = "text")
+
+# scale_fill_viridis_c() 
+# highest incidence rates in Kazakhstan, Kyrgyzstan, Azerbaijan and Romania
+```
+
+## Countries and regions experienced the highest measles incidence rates in 2024
+
+```{r}
+#| echo: false
+# does the choropleth map display accurate results fo the distribution of measles incidence rates across the world?
+
+# to check this, below is a bar chart of the countries with the highest incidence rates in 2024
+library(forcats)
+
+top_10 <- measles_2024 |> arrange(desc(measles_incidence_rate_per_1000000_total_population)) |>
+  slice(1:10) |>
+  mutate(country = fct_reorder(country,
+    measles_incidence_rate_per_1000000_total_population))
+
+ggplot(data = top_10, aes(x = country, y = measles_incidence_rate_per_1000000_total_population)) +
+  geom_col(aes(fill = region)) +
+  theme_minimal(base_size = 24) +
+  labs(y = "Incidence rate per million") +
+  coord_flip() +
+  scale_fill_viridis_d()
+
+# The bar chart confirms the patterns observed in the choropleth map, with countries such as Kazakhstan, Kyrgyzstan, Azerbaijan, and Romania exhibiting the highest incidence rates. This reinforces the observation that high measles burden was not confined to a single region in 2024, but was higher in contries in both Central Asia and Eastern Europe.
+```
+
+## Comparing Lesotho with USA
+
+```{r}
+#| echo: false
+US_Les <- measles |> filter(country == "Lesotho"| country == "United States of America") |>
+       filter(year >= 2014)
+
+# USA data only starts from 2014, hence the filtering
+
+ggplot(data = US_Les, aes(x = year, y = measles_incidence_rate_per_1000000_total_population)) +
+  geom_line(aes(colour = country)) +
+  scale_color_viridis_d() +
+  theme_minimal(base_size = 24) +
+  labs(x = "Year",
+       y = "Incidence rate per million") 
+
+# even though incidence rate is a better indicator of prevalence than total cases because it accounts for the differences in population, it also raises some limitations:
+
+# it overly magnifies prevalence in smaller countries even through their counts or cases may be lower  -- therefore requires a well-rounded perspective when comparing countries of different population sizes
+
+# 330–340 million people USA ,,,, 2.1–2.3 million people Lesotho
+
+```
+
+## 
+```{r}
+ggplot(data = US_Les, aes(x = year, y = measles_total)) +
+  geom_line(aes(colour = country)) +
+  scale_color_viridis_d() +
+  theme_minimal(base_size = 24) +
+  labs(x = "Year",
+       y = "Total cases recorded")
+```
+
