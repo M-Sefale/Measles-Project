@@ -148,6 +148,41 @@ ggplot(data = top_10, aes(x = country, y = measles_incidence_rate_per_1000000_to
 # The bar chart confirms the patterns observed in the choropleth map, with countries such as Kazakhstan, Kyrgyzstan, Azerbaijan, and Romania exhibiting the highest incidence rates. This reinforces the observation that high measles burden was not confined to a single region in 2024, but was higher in contries in both Central Asia and Eastern Europe.
 ```
 
+## Comparing Lesotho with USA
+
+```{r}
+#| echo: false
+US_Les <- measles |> filter(country == "Lesotho"| country == "United States of America") |>
+       filter(year >= 2014)
+
+# USA data only starts from 2014, hence the filtering
+
+ggplot(data = US_Les, aes(x = year, y = measles_incidence_rate_per_1000000_total_population)) +
+  geom_line(aes(colour = country)) +
+  scale_color_viridis_d() +
+  theme_minimal() +
+  labs(x = "Year",
+       y = "Incidence rate per million") 
+
+# even though incidence rate is a better indicator of prevalence than total cases because it accounts for the differences in population, it also raises some limitations:
+
+# it overly magnifies prevalence in smaller countries even through their counts or cases may be lower  -- therefore requires a well-rounded perspective when comparing countries of different population sizes
+
+# 330–340 million people USA ,,,, 2.1–2.3 million people Lesotho
+
+```
+
+## 
+```{r}
+ggplot(data = US_Les, aes(x = year, y = measles_total)) +
+  geom_line(aes(colour = country)) +
+  scale_color_viridis_d() +
+  theme_minimal() +
+  labs(x = "Year",
+       y = "Total cases recorded")
+```
+
+
 
 
 
