@@ -78,7 +78,51 @@ ggplot(data = annual_measles, aes(x = year, y = `total measles cases in millions
        y = "Total global measles cases in millions")
 ```
 
+## Geographic distribution of measles cases
 
+```{r}
+#| echo: false
+
+# we have seen the trends in global measles cases over the years, now to explore the distribution of measles cases across the world, we will look at a choropleth world map using the most recent year with complete records - 2024.
+
+## we will use incidence rate per million
+
+measles_2024 <- measles |> filter(year == 2024)
+
+library(maps)
+world <- map_data("world")
+
+measles_2024 <- measles_2024 |> mutate(country = if_else(country == "United States of America",
+                                   true = "USA",
+                                   false = country))
+
+measles_2024 <- measles_2024 |> mutate(country = if_else(country == "Russian Federation",
+                                   true = "Russia",
+                                   false = country))
+
+measles_2024 <- measles_2024 |> mutate(country = if_else(country == "Eswatini",
+                                   true = "Swaziland",
+                                   false = country))
+
+
+world_measles <- measles_2024 |> left_join(world, by = join_by(country == region))
+
+plot <- ggplot(data = world_measles, aes(x = long, y = lat, group = group, text = paste0("Country: ", country, "\n",
+    "Incidence: ", round(measles_incidence_rate_per_1000000_total_population, 2)))) +
+  geom_polygon(colour = "black", aes(fill = measles_incidence_rate_per_1000000_total_population)) +
+  coord_map(projection = "gilbert") +
+  theme_void() +
+  scale_fill_viridis_c() +
+  xlim(c(-180, 180)) + 
+  labs(fill = "Incidence rate per million")
+
+library(plotly)
+
+ggplotly(plot, tooltip = "text")
+
+# scale_fill_distiller(type = "seq", palette = "Blues", direction = 1)
+# highest incidence rates in Kazakhstan, Kyrgyzstan, Azerbaijan and Romania
+```
 
 
 
