@@ -1,5 +1,5 @@
 ---
-title: "Final Project"
+title: "The Case Of Measles"
 author: "Lala"
 execute:
   echo: true
@@ -9,8 +9,6 @@ format:
     embed-resources: true
 --- 
 
-# Creative title?
-
 # Abstract
 Measles is a highly contagious viral disease that remains a public health concern despite the availability of an effective vaccine. This project examines global trends in measles incidence from 2012 to 2024 using country-level data on reported cases, incidence rates, and case classifications. The analysis explores how measles incidence has changed over time, how it varies geographically, and which countries experience the highest disease burden.
 Using spatial and time-series visualizations, the project identifies patterns in measles distribution across regions and highlights countries with high incidence rates, particularly in parts of Central Asia and Eastern Europe for 2024. 
@@ -18,7 +16,7 @@ Using spatial and time-series visualizations, the project identifies patterns in
 ?? In addition, the analysis considers the potential role of surveillance intensity in shaping reported incidence and compares trends between countries with different socioeconomic and health system contexts.
 Overall, the findings show that measles incidence is unevenly distributed across the world and influenced by both epidemiological and reporting factors. The project emphasizes the importance of vaccination coverage and reliable surveillance systems in understanding and controlling measles outbreaks globally.
 
-#Introduction
+# Introduction
 
 According to the CDC, measles is a highly contagious viral disease that spreads through the air and can lead to serious complications, especially in young children below the age of 5. Symptoms include a rash, fever, coughing and a runny nose. Although it is preventable through vaccination, it remains a concern in many parts of the world. [[cite https://www.cdc.gov/measles/about/index.html]]
 
@@ -30,25 +28,49 @@ The data for this project was sourced from a tidyTuesday data GitHub repository 
 
 To satisfy my curiosity, here are the questions I will be exploring:
 
-1. How have measles cases changed globally over time (2012–2024)?
+1. How have measles cases changed globally over time?
 
-#Visualization:
+2. Geographic distribution of measles cases across countries and regions
 
-Line plot (year vs. measles incidence rate, grouped by region or global average)
+3. Which countries and regions experienced the highest measles incidence rates in 2024?
+
+4. How do measles cases differ between Lesotho and USA?
+
+
+## Data
 
 ```{r}
+#| echo: false
 #| warning: false
 library(tidyverse)
 library(readr)
 
 measles <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-06-24/cases_year.csv')
+
 measles_month <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-06-24/cases_month.csv')
+
 # the data for the year 2025 is incomplete for all countries. 2025 records in measles_month contain 4 to 6 months' data 
 # so, I will filter out the year 2025 to eliminate these incomplete records for the sake of consistency throughout the years
-measles <- measles |> select(1,2,3, 4, 5, 8, 9, 10, 11, 12) |> 
-  filter(year != 2025)
 
-View(measles |> filter(country == "Eswatini"))
+measles <- measles |> select(1,2,3, 4, 5, 8, 9, 10, 11, 12) |> 
+  filter(year != 2025) 
+
+#preview of data 
+measles_preview <- measles |> group_by(region) |>
+  slice(1)
+
+library(knitr)
+measles_preview |> kable()
+```
+
+
+1. How have measles cases changed globally over time?
+
+# Visualization:
+
+Line plot (year vs. measles incidence rate, grouped by region or global average)
+
+```{r}
 View(measles)
 ```
 
@@ -242,6 +264,8 @@ ggplot(data = US_Les, aes(x = year, y = measles_incidence_rate_per_1000000_total
 # anything to do with economy and medical advancements like labs?
 ```
 
+## heatmap for seasonality for one country -- to see if the disease is seasonal
+
 
 # Findings
 
@@ -261,4 +285,25 @@ ggplot(data = US_Les, aes(x = year, y = measles_incidence_rate_per_1000000_total
 
 * the interactive map (with leaflet) -- limitation is that it depends on the user hovering over it to see the exact incidence rates, which is a limitaTion of interactive visualisations --- ADD MORE TO THIS 
 
+## Modeling mealses cases using predictors that are economic, and maybe rubella cases as well?/??
 
+Future work:
+
+vaccination data
+policy analysis
+
+## LIMITATIONS
+
+some countries had inconsistent data reporting eg in 2024, Botswana had monthly data for Jan to Sep then skipped Oct and Nov and had Dec
+
+
+Filtered out data for the year 2025 because it was mostly incomplete, only had the first 5 or 6 months' data, so for the sake of consistency, I removed it.
+
+Underreporting in some countries
+
+countries recorded with different names in the 2 data sets for world and measles. made it harder to merge the 2 accurately, had to go in manually and change some names to match. I may have missed some countries
+Like: 
+
+filter(country == "Eswatini")
+
+world |> filter(region == "Swaziland")
