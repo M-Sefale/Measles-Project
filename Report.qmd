@@ -63,6 +63,25 @@ library(knitr)
 measles_preview |> kable()
 ```
 
+## Global trend in total cases of measles over the 13 years
+```{r}
+#| echo: false
+#Line plot for global trend in total cases of measles over the years
+
+annual_measles <- measles |> group_by(year) |>
+  summarise(`total measles cases in millions` = sum(measles_total)/100000)
+  
+ggplot(data = annual_measles, aes(x = year, y = `total measles cases in millions`)) +
+  geom_line(color = "purple") +
+  theme_minimal() +
+  labs(x = "Years",
+       y = "Total global measles cases in millions")
+```
+
+
+
+
+
 
 1. How have measles cases changed globally over time?
 
