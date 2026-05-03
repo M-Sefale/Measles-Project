@@ -91,7 +91,7 @@ plot <- ggplot(data = world_measles, aes(x = long, y = lat, group = group, text 
   geom_polygon(colour = "black", aes(fill = measles_incidence_rate_per_1000000_total_population)) +
   coord_map(projection = "gilbert") +
   theme_void() +
-  scale_fill_distiller(type = "seq", palette = "Blues", direction = 1) +
+  scale_fill_viridis_c() +
   xlim(c(-180, 180)) + 
   labs(fill = "Incidence rate per million")
 
@@ -99,7 +99,7 @@ library(plotly)
 
 ggplotly(plot, tooltip = "text")
 
-# scale_fill_viridis_c() 
+# scale_fill_distiller(type = "seq", palette = "Blues", direction = 1)
 # highest incidence rates in Kazakhstan, Kyrgyzstan, Azerbaijan and Romania
 ```
 

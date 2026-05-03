@@ -1,0 +1,59 @@
+---
+title: "Measles cases across the world"
+author: "Lala Sefale"
+format: revealjs
+editor: visual
+---
+
+![](images/Measles-disease-symptoms.png)
+
+Source: https://nursingexercise.com/measles-disease-symptoms-sign-diagnosis-treatment/
+
+
+
+## means new slide
+
+'
+
+5 mins or less presentation. do:
+
+## data introduction
+
+-   table of data or of variables
+
+## questions of interest
+
+-   doesnt have to be everything in the project
+
+## subsequent slides of graphs
+
+when you create the presentation, you must load in the data into the presentation and the libraries and all that to make it reproducable -- make output to be false for the data cleanign
+
+## graphs
+
+-   the default font of scales of graphs is very small, so as an argument to theme of your choice, add base size
+
+```{r}
+#| eval: false
+ggplot... +
+  theme_minimal(base_size = 24)
+```
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished presentation. To learn more about Quarto presentations see <https://quarto.org/docs/presentations/>.
+
+## Bullets
+
+When you click the **Render** button a document will be generated that includes:
+
+-   Content authored with markdown
+-   Output from executable code
+
+## Code
+
+When you click the **Render** button a presentation will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
