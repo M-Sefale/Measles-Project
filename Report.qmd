@@ -124,6 +124,30 @@ ggplotly(plot, tooltip = "text")
 # highest incidence rates in Kazakhstan, Kyrgyzstan, Azerbaijan and Romania
 ```
 
+## Countries and regions that experienced the highest measles incidence rates in 2024
+
+```{r}
+#| echo: false
+# does the choropleth map display accurate results for the distribution of measles incidence rates across the world?
+
+# to check this, below is a bar chart of the countries with the highest incidence rates in 2024
+library(forcats)
+
+top_10 <- measles_2024 |> arrange(desc(measles_incidence_rate_per_1000000_total_population)) |>
+  slice(1:10) |>
+  mutate(country = fct_reorder(country,
+    measles_incidence_rate_per_1000000_total_population))
+
+ggplot(data = top_10, aes(x = country, y = measles_incidence_rate_per_1000000_total_population)) +
+  geom_col(aes(fill = region)) +
+  theme_minimal() +
+  labs(y = "Incidence rate per million") +
+  coord_flip() +
+  scale_fill_viridis_d()
+
+# The bar chart confirms the patterns observed in the choropleth map, with countries such as Kazakhstan, Kyrgyzstan, Azerbaijan, and Romania exhibiting the highest incidence rates. This reinforces the observation that high measles burden was not confined to a single region in 2024, but was higher in contries in both Central Asia and Eastern Europe.
+```
+
 
 
 
