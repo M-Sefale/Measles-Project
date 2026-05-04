@@ -9,6 +9,8 @@ format:
     embed-resources: true
 --- 
 
+The GitHub repository for this project can be found here: https://github.com/M-Sefale/Measles-Project.git
+
 # Abstract
 Measles is a highly contagious viral disease that remains a public health concern despite the availability of an effective vaccine. This project examines global trends in measles incidence from 2012 to 2024 using country-level data on reported cases, incidence rates, and case classifications. The analysis explores how measles incidence has changed over time, how it varies geographically, and which countries experience the highest disease burden.
 Using spatial and time-series visualizations, the project identifies patterns in measles distribution across regions and highlights countries with high incidence rates, particularly in parts of Central Asia and Eastern Europe for 2024. 
