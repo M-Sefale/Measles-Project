@@ -19,7 +19,7 @@ Overall, the findings show that measles incidence is unevenly distributed across
 
 # Introduction
 
-According to the CDC, measles is a highly contagious viral disease that spreads through the air and can lead to serious complications, especially in young children below the age of 5. Symptoms include a rash, fever, coughing and a runny nose. Although it is preventable through vaccination, it remains a concern in many parts of the world. [[cite https://www.cdc.gov/measles/about/index.html]]
+According to the CDC, measles is a highly contagious viral disease that spreads through the air and can lead to serious complications, especially in young children below the age of 5. Symptoms include a rash, fever, coughing and a runny nose. Although it is preventable through vaccination, it remains a concern in many parts of the world. 
 
 Growing up in Lesotho, I used to hear about measles a lot, either when a classmate had contracted it and therefore was taking some time off from school, or when my mom would take me to doctors' appointments and one of the first things they would ask her would be whether I had gotten a measles/rubella vaccination. Since then I hadn't heard or read much about measles until I came across this dataset. Finding this dataset sparked my curiosity about whether I had stopped hearing about measles because it wasn't as rampant a disease anymore or if my change of location from Lesotho to Eswatini and now the U.S. within the past seven years had anything to do with it.
 
@@ -340,6 +340,8 @@ Since there is a version of the measles data set that consists of monthly data, 
 
 
 # References 
+
+https://www.cdc.gov/measles/about/index.html
 
 https://stackoverflow.com/questions/13701347/force-the-origin-to-start-at-0 
 
