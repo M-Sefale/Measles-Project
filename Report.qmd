@@ -13,8 +13,9 @@ format:
 Measles is a highly contagious viral disease that remains a public health concern despite the availability of an effective vaccine. This project examines global trends in measles incidence from 2012 to 2024 using country-level data on reported cases, incidence rates, and case classifications. The analysis explores how measles incidence has changed over time, how it varies geographically, and which countries experience the highest disease burden.
 Using spatial and time-series visualizations, the project identifies patterns in measles distribution across regions and highlights countries with high incidence rates, particularly in parts of Central Asia and Eastern Europe for 2024. 
 
-?? In addition, the analysis considers the potential role of surveillance intensity in shaping reported incidence and compares trends between countries with different socioeconomic and health system contexts.
-Overall, the findings show that measles incidence is unevenly distributed across the world and influenced by both epidemiological and reporting factors. The project emphasizes the importance of vaccination coverage and reliable surveillance systems in understanding and controlling measles outbreaks globally.
+In addition, the analysis considers the potential role of economic stability in the incidence rate of measles through modeling the influence of GDP per Capita on incidence rates.
+
+Overall, the findings show that measles incidence is unevenly distributed across the world and influenced by in part by economic factors.
 
 # Introduction
 
@@ -256,257 +257,75 @@ Looking at the two line plots above, where the first shows trends in total measl
 
 However, on the second plot, we can see that the incidence rate in Lesotho tends to fluctuate to levels higher than the U.S.
 
-Even though the total cases for Lesotho seem relatively steady in comparison to those of the U.S, the incidence rate in Lesotho is shown to be more volatile in the second plot.This goes to demonstrate the effect of incidence rate in leveling the playing field for countries of different population sizes when comparing the risk of a disease. From the second plot, it can be concluded that risk of measles is higher in Lesotho than in the U.S.
+Even though the total cases for Lesotho seem relatively steady in comparison to those of the U.S, the incidence rate in Lesotho is shown to be more volatile in the second plot.This goes to demonstrate the effect of incidence rate in leveling the playing field for countries of different population sizes when comparing the risk of a disease. The population of USA is about 340 million, while that of Lesotho is about 2.3 million. 
 
-The several peaks in incidence rates for Lesotho most likely coincide with measles outbreaks. The most interesting and extreme one is the peak of 2013 which goes as high as approximately 72 cases per million of the population. This was during a region-wide outbreak across Southern Africa which was accelerated by low immunization as vaccination coverage had dropped in that period.
+From the second plot, it can be concluded that risk of measles is higher in Lesotho than in the U.S. The several peaks in incidence rates for Lesotho most likely coincide with measles outbreaks. The most interesting and extreme one is the peak of 2013 which goes as high as approximately 72 cases per million of the population. This was during a region-wide outbreak across Southern Africa which was accelerated by low immunization as vaccination coverage had dropped in that period.
 
+As a student of Economics, I suspect that population size may not be the only factor at play in the difference between incidence rates in Lesotho and the U.S.  Economic indicators such as Gross Domestic Product per Capita tend to influence the distribution and availability of medical resources and could therefore significantly influence a country's measles burden and risk.
 
+The visualisations above identified patterns in measles cases across the world and over time. Now in this section, I use a simple linear regression model to explore how a country’s economic status (GDP per capita) influences its measles incidence rate.
 
-
-
-# even though incidence rate is a better indicator of prevalence than total cases because it accounts for the differences in population, it also raises some limitations:
-
-# it overly magnifies prevalence in smaller countries even through their counts or cases may be lower  -- therefore requires a well-rounded perspective when comparing countries of different population sizes
-
-# 330–340 million people USA ,,,, 2.1–2.3 million people Lesotho
-
-
-## One might also suggest that perhaps the global trend in population count may give some insight into the trends in measles cases. Wouldn't it make sense that assuming all things are held constant, as population grows the number of rate of infection will grow thus increasing the incidence rate as well as the total number of reported cases? In fact, I suspect that /.....
-
-
-
-USA and Lesotho a greatly different economically...
-
-## this then begs the question, does economic status/economic level have any influence on incidence rates -- year, GDP, population size, facet by region?
--- predicting the incidence rates in USA AND LES in 2027??
-
-1. How have measles cases changed globally over time?
-
-# Visualization:
-
-Line plot (year vs. measles incidence rate, grouped by region or global average)
+To do this, I will be using data from the WDI package in R..
 
 ```{r}
-View(measles)
-```
+## install.packages("ggbreak")
+library(ggbreak)
 
+#install.packages("WDI")
+library(WDI)
 
-```{r}
-#Line plot for global trend in total cases of measles over the years
+gdp_data <- WDI(country = "all", 
+                indicator = "NY.GDP.PCAP.KD", 
+                start = 2012, 
+                end = 2024, 
+                extra = TRUE)  
 
-annual_measles <- measles |> group_by(year) |>
-  summarise(`total measles cases in millions` = sum(measles_total)/100000)
-  
-ggplot(data = annual_measles, aes(x = year, y = `total measles cases in millions`)) +
-  geom_line(color = "darkblue") +
+measles <- measles |> rename(iso3c = iso3)
+
+joined <- measles |> left_join(gdp_data, by = c("iso3c", "year")) |> rename(gdp = NY.GDP.PCAP.KD, region = region.x) |> select(1:10, 13, 14) 
+
+#install.packages("ggeffects")
+library(broom)
+library(ggeffects)
+mod_measles <- lm(measles_incidence_rate_per_1000000_total_population ~  gdp, data = joined )
+
+mod_measles |> tidy()
+
+pred_inc <- ggpredict(mod_measles, terms = "gdp") |>
+  as.data.frame(terms_to_colnames = TRUE) |>
+  as_tibble()
+
+ggplot(data = joined |> filter(gdp <= 20000 & measles_incidence_rate_per_1000000_total_population < 3000), aes(x = gdp, y = measles_incidence_rate_per_1000000_total_population)) +
+  geom_point() +
+  geom_line(data = pred_inc |> filter(gdp <= 20000 & predicted < 3000) , aes(x = gdp, y = predicted),
+            colour = "blue", linewidth = 1.2) +
+  geom_ribbon(data = pred_inc |> filter(gdp <= 20000 & predicted < 3000), aes(y = predicted,
+                                  ymin = conf.low,
+                                  ymax = conf.high), 
+              alpha = 0.4) +
   theme_minimal() +
-  labs(title = "Trend of measles cases throughout the world for the past 13 years",
-       x = "Years",
-       y = "Total global measles cases in millions")
-
-# the sharp spike between from 2018 to 2019??
-
-# dropped significantly from 2019 to 2021 because people were isolating in those years due to the Covid pandemic. Since measles is a contagious viral infection, its spread got minimized by the fact that people did not come into contact with other people as frequently as they used to.
-
-#The sharp decline in measles incidence between 2019 and 2021 may be partially explained by reduced social contact during the COVID-19 pandemic. However, it may also reflect disruptions in surveillance and reporting systems, meaning the true number of cases could be underreported during this period.
-
-#how does this trend compare with the trend in global population growth?
-annual_population <- measles |> group_by(year) |>
-  summarise(`total world population in billions` = sum(total_population)/1000000000)
-
-ggplot(data = annual_population, aes(x = year, y = `total world population in billions`)) +
-  geom_line(color = "skyblue") +
-  theme_minimal() +
-  labs(title = "Trend of measles cases throughout the world for the past 13 years",
-       x = "Years",
-       y = "Total world population in billions")
-
-## we see a generally upward trend in global population 
-## According to the Population Reference Bureau, the world population in 2012 was 7.1 billion (https://www.prb.org/resource/2012-world-population-data-sheet/), so this suggests that there was error in my computation of total world population for the years 2012 and 2013 which seem to be significantly lower on the plot. Looking at the measles_month data set, the most likely cause of this discrepancy is the missing This discrepancy causes a limitation to the analysis, but even despite it, there still has been an overall growth in global population with some declines between 2020 and 2021 due to the Covid-19 pandemic which increased global death rates. 
-
-# global measles trends don't seem to be linked to trends in global population growth.
-```
-
-```{r}
-# trends over time for different regions
+  labs(caption = "Many outliers on the x and y axis were removed when constructing this plot.",
+       title = "Relationship between incidence rates and GDP per Capita",
+       x = "GDP per Capita (in constant 2015 USD",
+       y = "Incidence rates per million")
 
 ```
 
-2. How does the geographic distribution of measles cases vary across countries and regions?
+There were multiple extreme outliers in the y and x axes which I removed by narrowing down the data to only display points of GDP per capita less than or equal to $20,000 and incidence rates less than 3000 per million.
 
+From this simple linear model which I was using to attempt to study the role played by economic status on incidence rates using GDP per Capita, I found that for every $1,000 increase in GDP per capita, the model predicts a decrease of approximately 1 (1.04) measles case per million people.
 
-#Visualization:
-
-Choropleth world map (fill = incidence rate, possibly animated over time)
-
-```{r}
-# we have seen the trends in global measles cases over the years, now to explore the distribution of measles cases across the world, we will look at a choropleth world map using the most recent year with complete records - 2024.
-
-## we will use incidence rate per million
-
-measles_2024 <- measles |> filter(year == 2024)
-
-library(maps)
-world <- map_data("world")
-
-measles_2024 <- measles_2024 |> mutate(country = if_else(country == "United States of America",
-                                   true = "USA",
-                                   false = country))
-
-measles_2024 <- measles_2024 |> mutate(country = if_else(country == "Russian Federation",
-                                   true = "Russia",
-                                   false = country))
-measles_2024 <- measles_2024 |> mutate(country = if_else(country == "Eswatini",
-                                   true = "Swaziland",
-                                   false = country))
-
-world_measles <- measles_2024 |> left_join(world, by = join_by(country == region))
-
-plot1 <- ggplot(data = world_measles, aes(x = long, y = lat, group = group, text = paste0(
-    "Country: ", country, "\n",
-    "Incidence: ", round(measles_incidence_rate_per_1000000_total_population, 2)
-  ))) +
-  geom_polygon(colour = "black", aes(fill = measles_incidence_rate_per_1000000_total_population)) +
-  coord_map(projection = "gilbert") +
-  theme_void() +
-  scale_fill_distiller(type = "seq", palette = "Blues", direction = 1) +
-  xlim(c(-180, 180)) +
-  labs(fill = "Incidence rate per million")
-
-
-plot <- ggplot(world_measles, aes(
-  x = long,
-  y = lat,
-  group = group,
-  text = paste0(
-    "Country: ", country, "\n",
-    "Incidence: ", round(measles_incidence_rate_per_1000000_total_population, 2)
-  )
-)) +
-  geom_polygon(
-    aes(fill = measles_incidence_rate_per_1000000_total_population),
-    color = "gray40",
-    size = 0.1
-  ) +
-  coord_map("gilbert") +
-  theme_void() +
-  scale_fill_distiller(
-    palette = "YlOrRd",
-    direction = 1,
-    na.value = "gray90"
-  ) +
-  labs(fill = "Incidence per 1,000,000")
-
-library(plotly)
-
-ggplotly(plot1, tooltip = "text")
-
-
-# highest incidence rates in Kazakhstan, Kyrgyzstan, Azerbaijan and Romania
-```
-
-
-3. Which countries and regions experience the highest measles burden, and how has this changed over time?
-
-3.  Which countries and regions experienced the highest measles incidence rates in 2024?
-
-#Visualization:
-
-Bar chart (top countries by incidence or total cases)
-Optional: small multiples or faceted trends by region
-
-```{r}
-# does the choropleth map display accurate results fo the distribution of measles incidence rates across the world?
-
-# to check this, below is a bar chart of the countries with the highest incidence rates in 2024
-library(forcats)
-
-top_10 <- measles_2024 |> arrange(desc(measles_incidence_rate_per_1000000_total_population)) |>
-  slice(1:10) |>
-  mutate(country = fct_reorder(country,
-    measles_incidence_rate_per_1000000_total_population))
-
-View(top_10)
-
-ggplot(data = top_10, aes(x = country, y = measles_incidence_rate_per_1000000_total_population)) +
-  geom_col(aes(fill = region)) +
-  theme_minimal() +
-  labs(y = "Incidence rate per million") +
-  coord_flip()
-
-# The bar chart confirms the patterns observed in the choropleth map, with countries such as Kazakhstan, Kyrgyzstan, Azerbaijan, and Romania exhibiting the highest incidence rates. This reinforces the observation that high measles burden was not confined to a single region in 2024, but was higher in contries in both Central Asia and Eastern Europe.
-
-## https://www.unicef.org/kyrgyzstan/press-releases/european-and-central-asian-region-reports-highest-number-measles-cases-more-25-years
-
-# European and central asian outbreak
-```
-
-
-
-
-- questions of interest to be explored in the project
-
-[does GDP have anything to do with it -- economic disparities] - as a student of Economics, I cannot help but wonder what role - if any - economic factors such as GDP per capita play in the disparities in measles incidence across the world
-
-
-# comparing Lesotho with USA
-
-The US is said to have eliminated measles since 2000. But why the spike in 2019? and why not 0 incidence rates throughout?
-
-```{r}
-# line plot
-US_Les <- measles |> filter(country == "Lesotho"| country == "United States of America") |>
-       filter(year >= 2014)
-
-# USA data only starts from 2014, hence the filtering
-
-ggplot(data = US_Les, aes(x = year, y = measles_incidence_rate_per_1000000_total_population)) +
-  geom_line(aes(colour = country)) +
-  scale_color_viridis_d() +
-  theme_minimal() +
-  labs(x = "Year",
-       y = "Incidence rate per million")
-
-# Why the spike in 2019 for both countries? 
-# why the 2 other spikes in 2016 and 2023 for Lesotho? -- likely due to fluctuations in reporting where the "dips" may just be due to underreporting. Could also be due to small ourbreaks seeming larger because of the smaller population compared to the US.
-# - this shows how measles reports (incidence rates) in smaller countries can appear more extreme even when driven by relatively similar case counts.
-
-## The comparison between Lesotho and United States highlights substantial differences in both the level and variability of measles incidence. Lesotho exhibits more frequent spikes, which may reflect localized outbreaks or differences in vaccination coverage. In contrast, the United States shows generally lower and more stable incidence, likely due to stronger vaccination programs and surveillance systems.
-
-# comparing reporting for both countries, 
-# interpreting what this means in relation to their widely different population sizes
-# comparing with economic factors and linking this to reporting and confirmation of cases
-# stacked bar plot to compare proportions of confirmed, clinical and epi-linked cases --
-# anything to do with economy and medical advancements like labs?
-```
-
-## heatmap for seasonality for one country -- to see if the disease is seasonal
-
-
-# Findings
-
-- the most interesting visualizations + their interpretations  --- broken up according to the questions of interest being answered
-
-- explain why results form these visualizations matter
-
-- state potential flaws to the visualizations and the interpretations
-
+However, the p-value for the GDP per Capita predictor is 0.00673, which is less than 0.05, so it can be concluded with confidence that the relationship between GDP per Capita and measles incidence rate is statistically significant. This implies that the decrease in measles incidence rates as GDP per capita increases is not just by chance although it is by a small amount. Wealthier countries are more likely to have more medical resources and vaccines to detect and combat the spread of measles before it gets out of had and becomes an outbreak.
 
 
 # Conclusion
 
+Through this exploration
 - future work that could be done if there was more time
 
 - limitations to my visualizations
 
 * the interactive map (with leaflet) -- limitation is that it depends on the user hovering over it to see the exact incidence rates, which is a limitaTion of interactive visualisations --- ADD MORE TO THIS 
-
-## Modeling mealses cases using predictors that are economic, and maybe rubella cases as well?/??
-
-Future work:
-
-vaccination data
-policy analysis
 
 ## LIMITATIONS
 
@@ -523,6 +342,8 @@ Like:
 filter(country == "Eswatini")
 
 world |> filter(region == "Swaziland")
+
+## used population size and not density -- density would have been a better indicator 
 
 
 # References 
@@ -545,3 +366,4 @@ https://www.acpjournals.org/doi/10.7326/M15-0447
 
 https://reliefweb.int/report/lesotho/southern-africa-measles-back-vengeance
 
+https://cran.r-project.org/web/packages/WDI/readme/README.html 
