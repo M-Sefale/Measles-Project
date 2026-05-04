@@ -163,12 +163,13 @@ Although total reported cases provide an indication of the spread of the disease
 
 So, to assess this risk and prevalence, the plots below use incidence rate per 1 million of the population to compare measles reports between countries for the year 2024.
 
+Incidence rate is a measure of new cases of a disease within a particular population over a set period of time. In this case, incidence rate measures the number of new case per 1 million of aeach country's population for a given year.
 
 ```{r}
 #| echo: false
 
-top10_inc <- ggplot(data = world_measles, aes(x = long, y = lat, group = group, text = paste0("Country: ", country, "\n",
-    "Incidence: ", round(measles_incidence_rate_per_1000000_total_population, 2)))) +
+map_inc <- ggplot(data = world_measles, aes(x = long, y = lat, group = group, text = paste0("Country: ", country, "\n",
+    "Incidence: ", measles_incidence_rate_per_1000000_total_population))) +
   geom_polygon(colour = "black", aes(fill = measles_incidence_rate_per_1000000_total_population)) +
   coord_map(projection = "gilbert") +
   theme_void() +
@@ -176,10 +177,8 @@ top10_inc <- ggplot(data = world_measles, aes(x = long, y = lat, group = group, 
   xlim(c(-180, 180)) + 
   labs(fill = "Incidence rate per million")
 
-ggplotly(top10_inc, tooltip = "text")
+ggplotly(map_inc, tooltip = "text")
 
-# scale_fill_distiller(type = "seq", palette = "Blues", direction = 1)
-# highest incidence rates in Kazakhstan, Kyrgyzstan, Azerbaijan and Romania
 ```
 
 
@@ -191,24 +190,38 @@ top_10 <- measles_2024 |> arrange(desc(measles_incidence_rate_per_1000000_total_
   mutate(country = fct_reorder(country,
     measles_incidence_rate_per_1000000_total_population))
 
-ggplot(data = top_10, aes(x = country, y = measles_incidence_rate_per_1000000_total_population)) +
+top10_inc <- ggplot(data = top_10, aes(x = country, y = measles_incidence_rate_per_1000000_total_population, text = paste0("Country: ", country, "\n",
+    "Incidence: ", measles_incidence_rate_per_1000000_total_population))) +
   geom_col(aes(fill = region)) +
   theme_minimal() +
   labs(y = "Incidence rate per million") +
   coord_flip() +
   scale_fill_viridis_d()
 
-# The bar chart confirms the patterns observed in the choropleth map, with countries such as Kazakhstan, Kyrgyzstan, Azerbaijan, and Romania exhibiting the highest incidence rates. This reinforces the observation that high measles burden was not confined to a single region in 2024, but was higher in contries in both Central Asia and Eastern Europe.
+ggplotly(top10_inc, tooltip = "text")
+
 ```
 
-## Comparing Lesotho with USA
+From the choropleth map and the barplot of the top ten countries with the highest incidence rate above, we can see that incidence rates per million of the population tell a different story from that told by total reported cases. Kyrgyzstan is now at the top with the highest incidence rate (2005 cases per million). This means that in 2024, people in Kyrgyzstan were at the highest risk of being infected with measles as compared to other countries.
+
+The EURO region still has the highest number of countries even in the top ten countries with the highest incidence rates.
+
+The bar chart confirms the patterns observed in the choropleth map, with countries such as Kazakhstan, Kyrgyzstan, Azerbaijan, and Romania exhibiting the highest incidence rates. This observation led me to discover that there was in fact a measles outbreak in the EURO region (European and Central Asian Region) in 2024 as reported on a press release by UNICEF.
+
+
+## Comparing Lesotho and USA
+
+Moving on from a global analysis of measles cases and incidence rates, as an attempt to answer my question about why I went from hearing a lot about measles when I was in Lesotho to not hearing about it all here in the United States, in this section I take a close-up look at the differences in measles reports between these two countries.
+
+Reports for the U.S. only begin in 2014 while reports for other countries in this data set start from 2012. This is likely due to the fact that USA had been considered to have eliminated measles since 2000 because it had been having incidence rates of less that 1 per million. So what happened in 2014 to reverse this elimination? 
+
+After doing a bit of searching, I found several sources pointing this resurgence of measles to Disneyland! One of these sources is an article titled "Measles at Disneyland, a Problem for All Ages", published by Dr. Halsey and Dr. Salmon in 2015. This article reports an outbreak that affected Disneyland guests and employees, which was suspected to have been sparked by an international traveler. The rapid spread of measles among people of all ages in this outbreak was assosiated with a lack of immunization as measles had no longer been a threat for over a decade until then. 
 
 ```{r}
 #| echo: false
-US_Les <- measles |> filter(country == "Lesotho"| country == "United States of America") |>
-       filter(year >= 2014)
+US_Les <- measles |> filter(country == "Lesotho"| country == "United States of America")
 
-# USA data only starts from 2014, hence the filtering
+US_Les |> filter(year == 2012)
 
 ggplot(data = US_Les, aes(x = year, y = measles_incidence_rate_per_1000000_total_population)) +
   geom_line(aes(colour = country)) +
@@ -222,8 +235,9 @@ ggplot(data = US_Les, aes(x = year, y = measles_incidence_rate_per_1000000_total
 # it overly magnifies prevalence in smaller countries even through their counts or cases may be lower  -- therefore requires a well-rounded perspective when comparing countries of different population sizes
 
 # 330–340 million people USA ,,,, 2.1–2.3 million people Lesotho
-
 ```
+
+
 
 ## 
 ```{r}
@@ -236,7 +250,7 @@ ggplot(data = US_Les, aes(x = year, y = measles_total)) +
 ```
 
 
-
+## this then begs the question, does economic status/economic level have any influence on incidence rates -- year, GDP, 
 
 
 1. How have measles cases changed globally over time?
@@ -493,3 +507,11 @@ https://stackoverflow.com/questions/71628944/custom-tooltip-hovertext-for-chorop
 https://www.worldometers.info/world-population/iraq-population/#:~:text=Country%20Continent%20World,in%20Iraq%20is%2021.1%20years. 
 
 https://www.worldometers.info/world-population/namibia-population/
+
+https://public-health.tamu.edu/degrees/mph/blog/epidemiology-incidence-vs-prevalence-explained.html
+
+https://www.unicef.org/kyrgyzstan/press-releases/european-and-central-asian-region-reports-highest-number-measles-cases-more-25-years
+
+https://www.cdc.gov/mmwr/preview/mmwrhtml/mm5106a2.htm
+
+https://www.acpjournals.org/doi/10.7326/M15-0447 
