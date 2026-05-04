@@ -86,7 +86,7 @@ ggplot(data = annual_measles, aes(x = year, y = `total measles cases in millions
        y = "Total global measles cases in millions")
 ```
 
-The line plot above shows a fluctuating trend in total measles cases reported across the world between 2012 and 2024. There are three major peaks around 2014, 2019 and 2024. These suggest that there were some outbreaks or surges in total reported cases in the world in those periods. There are two major dips int he trend between these three peaks, corresponding to 2016-2017 and 2020-2021. Interestingly, in 2020-2021, measles cases reported were the lowest in that 13-year period. Since 2020-2021 is the time notoriously known for the Covid-19 pandemic when people were "forced" to isolate, this may have decreased the rate of infections of measles as people did not come into contact with infected individuals. However, there is also a possibility that the low records of measles cases in that period just reflect the fact that medical resources and reporting was aimed more towards tracking the Covid-19 pandemic and measles reporting was not prioritized as much as in other years. 
+The line plot above shows a fluctuating trend in total measles cases reported across the world between 2012 and 2024. There are three major peaks around 2014, 2019 and 2024. These suggest that there were some outbreaks or surges in total reported cases in the world in those periods. There are two major dips int he trend between these three peaks, corresponding to 2016-2017 and 2020-2021. Interestingly, in 2020-2021, measles cases reported were the lowest in that 13-year period. Since 2020-2021 is the time notoriously known for the Covid-19 pandemic when people were "forced" to isolate, this may have decreased the rate of infections of measles as people did not come into contact with infected individuals. However, there is also a possibility that the low records of measles cases in that period just reflect the fact that medical resources and reporting was aimed more towards tracking the Covid-19 pandemic and measles reporting was not prioritized as much as in other years.
 
 As of 2024, the total cases of measles across the world were on a sharp rise. This contradicts human expectations that as the world at large advances technologically and medically, the spread of preventable diseases like measles would decrease.
 
@@ -209,7 +209,7 @@ The EURO region still has the highest number of countries even in the top ten co
 The bar chart confirms the patterns observed in the choropleth map, with countries such as Kazakhstan, Kyrgyzstan, Azerbaijan, and Romania exhibiting the highest incidence rates. This observation led me to discover that there was in fact a measles outbreak in the EURO region (European and Central Asian Region) in 2024 as reported on a press release by UNICEF.
 
 
-## Comparing Lesotho and USA
+# Comparing Lesotho and USA
 
 Moving on from a global analysis of measles cases and incidence rates, as an attempt to answer my question about why I went from hearing a lot about measles when I was in Lesotho to not hearing about it all here in the United States, in this section I take a close-up look at the differences in measles reports between these two countries.
 
@@ -221,37 +221,64 @@ After doing a bit of searching, I found several sources pointing this resurgence
 #| echo: false
 US_Les <- measles |> filter(country == "Lesotho"| country == "United States of America")
 
-US_Les |> filter(year == 2012)
+ggplot(data = US_Les, aes(x = year, y = measles_total)) +
+  geom_line(aes(colour = country), linewidth = 1.2) +
+  scale_color_viridis_d() +
+  scale_x_continuous(breaks = seq(2012, 2024, by = 2)) +
+  scale_y_continuous(limits = c(0,NA)) +
+  theme_minimal() +
+  labs(x = "Year",
+       y = "Total cases reported")
+```
+
+
+```{r}
+peak_Les <- US_Les |> 
+  filter(country == "Lesotho") |> 
+  arrange(desc(measles_incidence_rate_per_1000000_total_population)) |>
+  slice(1)
+ 
 
 ggplot(data = US_Les, aes(x = year, y = measles_incidence_rate_per_1000000_total_population)) +
-  geom_line(aes(colour = country)) +
+  geom_line(aes(colour = country), linewidth = 1.2) +
+  geom_label(data = peak_Les, 
+            aes(label =measles_incidence_rate_per_1000000_total_population)) +
   scale_color_viridis_d() +
+  scale_x_continuous(breaks = seq(2012, 2024, by = 2)) +
+  scale_y_continuous(limits = c(0,NA)) +
   theme_minimal() +
   labs(x = "Year",
        y = "Incidence rate per million") 
+
+```
+
+Looking at the two line plots above, where the first shows trends in total measles cases reported for Lesotho and USA and the second shows trends in incidence rates in these countries, they bring into perspective how different a story total case count tells from incidence rate. On the first plot, we can clearly see that despite their fluctuation through time, the total reported cases in USA are constantly higher than reported cases in Lesotho.  
+
+However, on the second plot, we can see that the incidence rate in Lesotho tends to fluctuate to levels higher than the U.S.
+
+Even though the total cases for Lesotho seem relatively steady in comparison to those of the U.S, the incidence rate in Lesotho is shown to be more volatile in the second plot.This goes to demonstrate the effect of incidence rate in leveling the playing field for countries of different population sizes when comparing the risk of a disease. From the second plot, it can be concluded that risk of measles is higher in Lesotho than in the U.S.
+
+The several peaks in incidence rates for Lesotho most likely coincide with measles outbreaks. The most interesting and extreme one is the peak of 2013 which goes as high as approximately 72 cases per million of the population. This was during a region-wide outbreak across Southern Africa which was accelerated by low immunization as vaccination coverage had dropped in that period.
+
+
+
+
 
 # even though incidence rate is a better indicator of prevalence than total cases because it accounts for the differences in population, it also raises some limitations:
 
 # it overly magnifies prevalence in smaller countries even through their counts or cases may be lower  -- therefore requires a well-rounded perspective when comparing countries of different population sizes
 
 # 330–340 million people USA ,,,, 2.1–2.3 million people Lesotho
-```
+
+
+## One might also suggest that perhaps the global trend in population count may give some insight into the trends in measles cases. Wouldn't it make sense that assuming all things are held constant, as population grows the number of rate of infection will grow thus increasing the incidence rate as well as the total number of reported cases? In fact, I suspect that /.....
 
 
 
-## 
-```{r}
-ggplot(data = US_Les, aes(x = year, y = measles_total)) +
-  geom_line(aes(colour = country)) +
-  scale_color_viridis_d() +
-  theme_minimal() +
-  labs(x = "Year",
-       y = "Total cases recorded")
-```
+USA and Lesotho a greatly different economically...
 
-
-## this then begs the question, does economic status/economic level have any influence on incidence rates -- year, GDP, 
-
+## this then begs the question, does economic status/economic level have any influence on incidence rates -- year, GDP, population size, facet by region?
+-- predicting the incidence rates in USA AND LES in 2027??
 
 1. How have measles cases changed globally over time?
 
@@ -515,3 +542,6 @@ https://www.unicef.org/kyrgyzstan/press-releases/european-and-central-asian-regi
 https://www.cdc.gov/mmwr/preview/mmwrhtml/mm5106a2.htm
 
 https://www.acpjournals.org/doi/10.7326/M15-0447 
+
+https://reliefweb.int/report/lesotho/southern-africa-measles-back-vengeance
+
