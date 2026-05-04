@@ -68,7 +68,7 @@ The data for the year 2025 is incomplete for all countries.The data set containi
 
 To explore the questions of interest mentioned above, the following sections use visualizations such as line plots and choropleth maps to display trends in measles cases over time and across the world.
 
-## The global trend in total cases of measles over the 13 years from 2012 to 2024 (inclusive)
+## The global trend in total cases of measles over the 13 years from 2012 to 2024
 
 ```{r}
 #| echo: false
@@ -320,30 +320,23 @@ However, the p-value for the GDP per Capita predictor is 0.00673, which is less 
 
 # Conclusion
 
-Through this exploration
-- future work that could be done if there was more time
+Through this exploration which began with just my personal curiosity about why I no longer heard measles being talked about as often as I did while growing up in Lesotho now that I am in the United States, I have come to discover far more answers than I had questions about. Through a combination of visualizations like choropleth maps and line plots as well as linear modeling, this analysis of global trends revealed that while the world has made significant medical strides, measles remains prevalent although it fluctuates, with major outbreaks seen in in 2014, 2019, and most recently in 2024. 
 
-- limitations to my visualizations
+From my comparison of Lesotho and USA, I found that while the U.S. has a mostly steady and low risk level (low incidence rates), it did face some outbreaks like the 2014 Disneyland event, whereas Lesotho faces a much higher and more fluctuant measles risk level. 
 
-* the interactive map (with leaflet) -- limitation is that it depends on the user hovering over it to see the exact incidence rates, which is a limitaTion of interactive visualisations --- ADD MORE TO THIS 
+There could be several reasons for this contrast between the two countries, but based on their widely different economic statuses, I suspected that economic status could be a factor influencing these differences.
 
-## LIMITATIONS
+The linear model confirmed this hypothesis. GDP per Capita is indeed a significant predictor of measles incidence, which suggests that high-income countries like USA are able to suppress the spread of measles better than lower-income countries like Lesotho.
 
-some countries had inconsistent data reporting eg in 2024, Botswana had monthly data for Jan to Sep then skipped Oct and Nov and had Dec
+So, to answer my over-arching question, I don't hear much about measles in the U.S. because the risk of measles here is lower than it is in Lesotho because of USA's more advanced medical resources which can be attributed to its higher economic level.
 
+Although these findings are significant (as supported by the low p value in the linear model), there are several limitations to this analysis. There was some under-reporting and inconsistent data for some countries like Botswana where the monthly data for October and November was missing in the data set. This inconsistency was also evident in the fact that total cases for Lesotho in 2012 were 0, which is unlikely and therefore could have just been a reporting error. 
 
-Filtered out data for the year 2025 because it was mostly incomplete, only had the first 5 or 6 months' data, so for the sake of consistency, I removed it.
+Data for 2025 was incompletely likely due to the data being published before 2025 ended. For this reason, I filtered out data for the year 2025 for the sake of consistency with other years.
 
-Underreporting in some countries
+Another limitation I faced was different countries being recorded with different names in the data sets for world data and measles. For example, Eswatini in measles data awas recorded as Swaziland in World data. This made it harder to merge the two accurately, so I had to go in manually and change some names to match and because of human error I may have missed some countries.
 
-countries recorded with different names in the 2 data sets for world and measles. made it harder to merge the 2 accurately, had to go in manually and change some names to match. I may have missed some countries
-Like: 
-
-filter(country == "Eswatini")
-
-world |> filter(region == "Swaziland")
-
-## used population size and not density -- density would have been a better indicator 
+Since there is a version of the measles data set that consists of monthly data, future work that could be done in this project would be exploring seasonal patterns of measles throughout the world to analyse whether outbreaks are associated with specific seasons in different regions.
 
 
 # References 
