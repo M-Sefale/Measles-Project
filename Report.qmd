@@ -63,7 +63,12 @@ library(knitr)
 measles_preview |> kable()
 ```
 
-## Global trend in total cases of measles over the 13 years
+The data for the year 2025 is incomplete for all countries.The data set containing monthly data only consists of 4 to 6 months' data for 2025 for all countries, implying that at the time this data set was published, the data collection process for 2025 was not yet completed. So, I have filtered out the year 2025 to eliminate these incomplete records for the sake of consistency throughout the years.
+
+To explore the questions of interest mentioned above, the following sections use visualizations such as line plots and choropleth maps to display trends in measles cases over time and across the world.
+
+## The global trend in total cases of measles over the 13 years from 2012 to 2024 (inclusive)
+
 ```{r}
 #| echo: false
 #Line plot for global trend in total cases of measles over the years
@@ -74,9 +79,57 @@ annual_measles <- measles |> group_by(year) |>
 ggplot(data = annual_measles, aes(x = year, y = `total measles cases in millions`)) +
   geom_line(color = "purple") +
   theme_minimal() +
-  labs(x = "Years",
+  scale_x_continuous(breaks = seq(2012, 2024, by = 2)) +
+  scale_y_continuous(limits = c(0,6)) +   #referenced
+  labs(title = "Trend of measles cases throughout the world for the past 13 years",
+       x = "Years",
        y = "Total global measles cases in millions")
 ```
+
+The line plot above shows a fluctuating trend in total measles cases reported across the world between 2012 and 2024. There are three major peaks around 2014, 2019 and 2024. These suggest that there were some outbreaks or surges in total reported cases in the world in those periods. There are two major dips int he trend between these three peaks, corresponding to 2016-2017 and 2020-2021. Interestingly, in 2020-2021, measles cases reported were the lowest in that 13-year period. Since 2020-2021 is the time notoriously known for the Covid-19 pandemic when people were "forced" to isolate, this may have decreased the rate of infections of measles as people did not come into contact with infected individuals. However, there is also a possibility that the low records of measles cases in that period just reflect the fact that medical resources and reporting was aimed more towards tracking the Covid-19 pandemic and measles reporting was not prioritized as much as in other years. 
+
+As of 2024, the total cases of measles across the world were on a sharp rise. This contradicts human expectations that as the world at large advances technologically and medically, the spread of preventable diseases like measles would decrease.
+
+This increasing trend in measles cases begs the question: which countries contribute the most to this growth? To answer this, below is a choropleth map that shows the global distribution of total measles cases.
+
+```{r}
+measles_2024 <- measles |> filter(year == 2024)
+
+
+library(maps)
+world <- map_data("world")
+
+measles_2024 <- measles_2024 |> mutate(country = if_else(country == "United States of America",
+                                   true = "USA",
+                                   false = country))
+
+measles_2024 <- measles_2024 |> mutate(country = if_else(country == "Russian Federation",
+                                   true = "Russia",
+                                   false = country))
+
+measles_2024 <- measles_2024 |> mutate(country = if_else(country == "Eswatini",
+                                   true = "Swaziland",
+                                   false = country))
+
+
+world_measles <- measles_2024 |> left_join(world, by = join_by(country == region))
+
+plot <- ggplot(data = world_measles, aes(x = long, y = lat, group = group, text = paste0("Country: ", country, "\n",
+    "Total cases: ",  measles_total)))  + #referenced
+  geom_polygon(colour = "black", aes(fill = measles_total)) +
+  coord_map(projection = "gilbert") +
+  theme_void() +
+  scale_fill_viridis_c() +
+  xlim(c(-180, 180)) + 
+  labs(fill = "Total cases reported", 
+       title = "Global distribution of measles cases" )
+
+library(plotly)
+
+ggplotly(plot, tooltip = "text")
+```
+
+
 
 ## Geographic distribution of measles cases
 
@@ -429,3 +482,10 @@ Like:
 filter(country == "Eswatini")
 
 world |> filter(region == "Swaziland")
+
+
+# References 
+
+https://stackoverflow.com/questions/13701347/force-the-origin-to-start-at-0 
+
+https://stackoverflow.com/questions/71628944/custom-tooltip-hovertext-for-choropleth-created-with-plotly-via-r
