@@ -129,38 +129,45 @@ library(plotly)
 ggplotly(plot, tooltip = "text")
 ```
 
+Looking at the map above, most of the world's countries had less than 10,000 reported cases in 2024. However a select few reached 20,000 cases and above. As you hover over the map, you can see the names of each country and the total number of cases it reported in 2024. 
 
+The barplot below shows the top 10 countries with the highest total number of measles cases reported in 2024 for easier comparison.
 
-## Geographic distribution of measles cases
+```{r}
+library(forcats)
+
+top10_cases <- measles_2024 |> arrange(desc(measles_total)) |>
+  slice(1:10) |>
+  mutate(country = fct_reorder(country,
+    measles_total))
+
+top10_plot <- ggplot(data = top10_cases, aes(x = country, y = measles_total, cases = measles_total)) +
+  geom_col(aes(fill = region)) +
+  theme_minimal() +
+  labs(y = "Total reported cases") +
+  coord_flip() +
+  scale_fill_viridis_d()
+
+ggplotly(top10_plot, tooltip = "cases")
+
+measles_2024 |> filter(country == "Namibia") 
+```
+
+From the plot above, we can observe that in 2024, Iraq reported the highest number of cases in the world with 32400 cases. 
+
+The World Health Organization (WHO) groups its member states into these 6 regions: Africa (AFRO), the Americas (AMRO), South-East Asia (SEARO), Europe (EURO), Eastern Mediterranean (EMRO), and the Western Pacific (WPRO). According to WHO, these regions do not strictly follow continental boundaries. As seen on the plot above, Kyrgyzstan, which is in Central Asia is categorized under the EURO region. 
+
+From the barplot, half of the top ten countries with the highest reported cases of measles in 2024 were in the EURO region, 3 were in the EMRO region and there was only 1 country for the SEARO and AFRO regions each.
+
+Although total reported cases provide an indication of the spread of the disease throughout a country, they are not necessarily a good metric for comparing the burden of the disease among various countries with different populations. A total count of 32400 in Iraq in 2024 where the population was around 46 million and a total count of 74 in Namibia where the population was around 3 million in 2024 do not give a fair comparison of the prevalence of the disease and level of risk for the people in that country. 
+
+So, to assess this risk and prevalence, the plots below use incidence rate per 1 million of the population to compare measles reports between countries for the year 2024.
+
 
 ```{r}
 #| echo: false
 
-# we have seen the trends in global measles cases over the years, now to explore the distribution of measles cases across the world, we will look at a choropleth world map using the most recent year with complete records - 2024.
-
-## we will use incidence rate per million
-
-measles_2024 <- measles |> filter(year == 2024)
-
-library(maps)
-world <- map_data("world")
-
-measles_2024 <- measles_2024 |> mutate(country = if_else(country == "United States of America",
-                                   true = "USA",
-                                   false = country))
-
-measles_2024 <- measles_2024 |> mutate(country = if_else(country == "Russian Federation",
-                                   true = "Russia",
-                                   false = country))
-
-measles_2024 <- measles_2024 |> mutate(country = if_else(country == "Eswatini",
-                                   true = "Swaziland",
-                                   false = country))
-
-
-world_measles <- measles_2024 |> left_join(world, by = join_by(country == region))
-
-plot <- ggplot(data = world_measles, aes(x = long, y = lat, group = group, text = paste0("Country: ", country, "\n",
+top10_inc <- ggplot(data = world_measles, aes(x = long, y = lat, group = group, text = paste0("Country: ", country, "\n",
     "Incidence: ", round(measles_incidence_rate_per_1000000_total_population, 2)))) +
   geom_polygon(colour = "black", aes(fill = measles_incidence_rate_per_1000000_total_population)) +
   coord_map(projection = "gilbert") +
@@ -169,22 +176,15 @@ plot <- ggplot(data = world_measles, aes(x = long, y = lat, group = group, text 
   xlim(c(-180, 180)) + 
   labs(fill = "Incidence rate per million")
 
-library(plotly)
-
-ggplotly(plot, tooltip = "text")
+ggplotly(top10_inc, tooltip = "text")
 
 # scale_fill_distiller(type = "seq", palette = "Blues", direction = 1)
 # highest incidence rates in Kazakhstan, Kyrgyzstan, Azerbaijan and Romania
 ```
 
-## Countries and regions that experienced the highest measles incidence rates in 2024
 
 ```{r}
 #| echo: false
-# does the choropleth map display accurate results for the distribution of measles incidence rates across the world?
-
-# to check this, below is a bar chart of the countries with the highest incidence rates in 2024
-library(forcats)
 
 top_10 <- measles_2024 |> arrange(desc(measles_incidence_rate_per_1000000_total_population)) |>
   slice(1:10) |>
@@ -489,3 +489,7 @@ world |> filter(region == "Swaziland")
 https://stackoverflow.com/questions/13701347/force-the-origin-to-start-at-0 
 
 https://stackoverflow.com/questions/71628944/custom-tooltip-hovertext-for-choropleth-created-with-plotly-via-r
+
+https://www.worldometers.info/world-population/iraq-population/#:~:text=Country%20Continent%20World,in%20Iraq%20is%2021.1%20years. 
+
+https://www.worldometers.info/world-population/namibia-population/
